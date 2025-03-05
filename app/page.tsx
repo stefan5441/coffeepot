@@ -1,5 +1,6 @@
 "use client";
 
+import { Suspense } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { useSearchParams } from "next/navigation";
@@ -7,7 +8,7 @@ import { useAuth } from "@/components/auth-provider";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 
-export default function Home() {
+const HomeContent = () => {
   const { user, isAuthorized, loading, signInWithGoogle, signOut } = useAuth();
   const searchParams = useSearchParams();
   const error = searchParams.get("error");
@@ -101,4 +102,12 @@ export default function Home() {
       </Card>
     </div>
   );
-}
+};
+
+const Home = () => (
+  <Suspense fallback={<div>Loading...</div>}>
+    <HomeContent />
+  </Suspense>
+);
+
+export default Home;
