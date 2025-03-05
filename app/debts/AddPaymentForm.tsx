@@ -3,7 +3,13 @@
 import { useEffect, useState } from "react";
 
 import { Debt } from "./types";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 import { fetchDebt, updateDebt } from "./utils";
+import { Button } from "@/components/ui/button";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 
 type Props = {
   debt: Debt | undefined;
@@ -13,7 +19,6 @@ type Props = {
 export default function AddPaymentForm({ debt, setDebt }: Props) {
   const [newPaymentAmount, setNewPaymentAmount] = useState<string>("");
   const [newPaymentFrom, setNewPaymentFrom] = useState<string>("");
-
   const [error, setError] = useState<string>("");
 
   useEffect(() => {
@@ -25,10 +30,13 @@ export default function AddPaymentForm({ debt, setDebt }: Props) {
       }
       if (data) {
         setDebt(data);
+        if (!newPaymentFrom && data.from) {
+          setNewPaymentFrom(data.from);
+        }
       }
     };
     loadDebt();
-  }, [setDebt]);
+  }, [setDebt, newPaymentFrom]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -75,39 +83,57 @@ export default function AddPaymentForm({ debt, setDebt }: Props) {
     }
     if (data) {
       setDebt(data);
+      setNewPaymentAmount("");
+      setError("");
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-4 bg-sky-700 rounded-xl p-4">
-      <div className="flex flex-col">
-        <label>Add new payment</label>
-        <input
-          className="bg-sky-600 rounded-sm"
-          type="number"
-          value={newPaymentAmount}
-          onChange={(e) => setNewPaymentAmount(e.target.value)}
-        />
-      </div>
-
-      <div className="flex flex-col">
-        <label>Paid by</label>
-        <select
-          className="bg-sky-600 rounded-sm"
-          value={newPaymentFrom}
-          onChange={(e) => setNewPaymentFrom(e.target.value)}
-        >
-          <option value="">Select</option>
-          <option value={debt?.from}>{debt?.from}</option>
-          <option value={debt?.to}>{debt?.to}</option>
-        </select>
-      </div>
-
-      <button className="bg-purple-500" type="submit">
-        ADD PAYMENT
-      </button>
-
-      <p className="text-amber-500">{error}</p>
-    </form>
+    debt && (
+      <Card className="w-sm">
+        <CardHeader>
+          <CardTitle>New payment</CardTitle>
+          <CardDescription>Add a new payment</CardDescription>
+        </CardHeader>
+        <CardContent>
+          {error && (
+            <Alert variant="destructive" className="mb-4">
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
+          <form id="addPaymentForm" onSubmit={handleSubmit}>
+            <div className="grid w-full items-center gap-4">
+              <div className="flex flex-col space-y-1.5">
+                <Label htmlFor="amount">Payment amount</Label>
+                <Input
+                  id="amount"
+                  placeholder="2000"
+                  type="number"
+                  value={newPaymentAmount}
+                  onChange={(e) => setNewPaymentAmount(e.target.value)}
+                />
+              </div>
+              <div className="flex flex-col space-y-1.5">
+                <Label htmlFor="paidby">Paid by</Label>
+                <Select value={newPaymentFrom} onValueChange={setNewPaymentFrom}>
+                  <SelectTrigger id="paidby" className="w-full">
+                    <SelectValue placeholder="Select" />
+                  </SelectTrigger>
+                  <SelectContent position="popper">
+                    {debt?.from && <SelectItem value={debt.from}>{debt.from}</SelectItem>}
+                    {debt?.to && <SelectItem value={debt.to}>{debt.to}</SelectItem>}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          </form>
+        </CardContent>
+        <CardFooter>
+          <Button type="submit" form="addPaymentForm" className="w-40">
+            Add payment
+          </Button>
+        </CardFooter>
+      </Card>
+    )
   );
 }

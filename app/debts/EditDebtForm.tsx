@@ -3,7 +3,13 @@
 import { useEffect, useState } from "react";
 
 import { Debt } from "./types";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { fetchDebt, updateDebt } from "./utils";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 
 type Props = {
   debt: Debt | undefined;
@@ -49,66 +55,91 @@ export default function EditDebtForm({ debt, setDebt }: Props) {
     }
     if (data) {
       setDebt(data);
+      setError("");
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-4 bg-sky-700 rounded-xl p-4">
-      <div className="flex flex-col">
-        <label>Debt</label>
-        <input
-          className="bg-sky-600 rounded-sm"
-          type="number"
-          value={debt?.amount ?? 0}
-          onChange={(e) => setDebt((debt) => (debt ? { ...debt, amount: Number(e.target.value) } : undefined))}
-        />
-      </div>
+    debt && (
+      <Card className="w-sm">
+        <CardHeader>
+          <CardTitle>Edit debt</CardTitle>
+          <CardDescription>Edit debt values manually</CardDescription>
+        </CardHeader>
+        <CardContent>
+          {error && (
+            <Alert variant="destructive" className="mb-4">
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
+          <form onSubmit={handleSubmit}>
+            <div className="grid w-full items-center gap-4">
+              <div className="flex flex-col space-y-1.5">
+                <Label htmlFor="debtamount">Debt amount</Label>
+                <Input
+                  id="debtamount"
+                  type="text"
+                  value={debt.amount}
+                  onChange={(e) => setDebt((debt) => (debt ? { ...debt, amount: Number(e.target.value) } : undefined))}
+                ></Input>
+              </div>
 
-      <div className="flex flex-col">
-        <label>From</label>
-        <select
-          className="bg-sky-600 rounded-sm"
-          value={debt?.from || ""}
-          onChange={(e) => setDebt((debt) => (debt ? { ...debt, from: e.target.value } : undefined))}
-        >
-          {users.map((user) => (
-            <option key={user} value={user}>
-              {user}
-            </option>
-          ))}
-        </select>
-      </div>
+              <div className="flex flex-col space-y-1.5">
+                <Label htmlFor="from">From</Label>
+                <Select
+                  value={debt.from}
+                  onValueChange={(value) => setDebt((debt) => (debt ? { ...debt, from: value } : undefined))}
+                >
+                  <SelectTrigger id="from" className="w-full">
+                    <SelectValue placeholder="Select" />
+                  </SelectTrigger>
+                  <SelectContent position="popper">
+                    {users.map((user) => (
+                      <SelectItem key={user} value={user}>
+                        {user}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
 
-      <div className="flex flex-col">
-        <label>To</label>
-        <select
-          className="bg-sky-600 rounded-sm"
-          value={debt?.to || ""}
-          onChange={(e) => setDebt((debt) => (debt ? { ...debt, to: e.target.value } : undefined))}
-        >
-          {users.map((user) => (
-            <option key={user} value={user}>
-              {user}
-            </option>
-          ))}
-        </select>
-      </div>
+              <div className="flex flex-col space-y-1.5">
+                <Label htmlFor="to">To</Label>
+                <Select
+                  value={debt.to}
+                  onValueChange={(value) => setDebt((debt) => (debt ? { ...debt, to: value } : undefined))}
+                >
+                  <SelectTrigger id="to" className="w-full">
+                    <SelectValue placeholder="Select" />
+                  </SelectTrigger>
+                  <SelectContent position="popper">
+                    {users.map((user) => (
+                      <SelectItem key={user} value={user}>
+                        {user}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
 
-      <div className="flex flex-col">
-        <label>Percentage</label>
-        <input
-          className="bg-sky-600 rounded-sm"
-          type="number"
-          value={debt?.percentage ?? 0}
-          onChange={(e) => setDebt((debt) => (debt ? { ...debt, percentage: Number(e.target.value) } : undefined))}
-        />
-      </div>
-
-      <button className="bg-purple-500" type="submit">
-        Save edited debt
-      </button>
-
-      <p className="text-amber-500">{error}</p>
-    </form>
+              <div className="flex flex-col space-y-1.5">
+                <Label htmlFor="percentage">Percentage</Label>
+                <Input
+                  id="percentage"
+                  type="number"
+                  value={debt.percentage}
+                  onChange={(e) => setDebt((debt) => (debt ? { ...debt, amount: Number(e.target.value) } : undefined))}
+                ></Input>
+              </div>
+            </div>
+          </form>
+        </CardContent>
+        <CardFooter>
+          <Button type="submit" className="w-40">
+            Save debt
+          </Button>
+        </CardFooter>
+      </Card>
+    )
   );
 }
